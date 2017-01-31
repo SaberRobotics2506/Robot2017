@@ -35,10 +35,10 @@ public class Robot extends IterativeRobot {
 	{
 	}
 	
-	WheelDrive backLeft = new WheelDrive (0, 1, 0, -51);
-	WheelDrive frontLeft = new WheelDrive (3, 2, 1, 17);
-	WheelDrive backRight = new WheelDrive (4, 5, 2, 82);
-	WheelDrive frontRight = new WheelDrive (7, 6, 3, -31);
+	WheelDrive backLeft = new WheelDrive(7, 6, 3, -153);
+	WheelDrive frontLeft = new WheelDrive(5, 4, 2, -30);
+	WheelDrive backRight = new WheelDrive(2, 3, 1, 151);
+	WheelDrive frontRight = new WheelDrive(0, 1, 0, -101);
 	WheelDrive[] wheels = { frontRight, frontLeft, backRight, backLeft };
 	WheelDrive testWheel = wheels[0];
 	
@@ -50,13 +50,18 @@ public class Robot extends IterativeRobot {
 		double one = joystick.getRawAxis(1);
 		double four = joystick.getRawAxis(4);
 		if (zero > 0.1 || zero < -0.1 || one > 0.1 || one < -0.1 || four > 0.1 || four < -0.1) {
-			swerveDrive.drive (one * 0.5, -zero * 0.5, -four);
+			swerveDrive.drive (squareAxis(one) * 0.7, -squareAxis(zero) * 0.7, -squareAxis(four) * 0.5);
 		} else {
 			backLeft.coast ();
 			backRight.coast ();
 			frontLeft.coast ();
 			frontRight.coast ();
 		}
+	}
+	
+	double squareAxis(double axis)
+	{
+		return axis * axis * Math.signum(axis);
 	}
 	
 	boolean b8 = false;

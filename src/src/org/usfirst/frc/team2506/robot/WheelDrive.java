@@ -3,18 +3,25 @@ package org.usfirst.frc.team2506.robot;
 import edu.wpi.first.wpilibj.*;
 
 public class WheelDrive {
-	private Jaguar jaguar0;
-	private Jaguar jaguar1;
-	private AnalogInput encoder;
-	private PIDController pidController;
+	Jaguar jaguar0;
+	Jaguar jaguar1;
+	AnalogInput encoder;
+	PIDController pidController;
 	
-	private double offset;
+	double offset;
+	
+	final double ENCODER_MAX = 4.95;
+	final double ENCODER_180 = ENCODER_MAX / 2;
+	final double ENCODER_90 = ENCODER_MAX / 4;
 	
 	public WheelDrive(int jaguar0, int jaguar1, int encoder, double offset) {
 		this.jaguar0 = new Jaguar (jaguar0);
 		this.jaguar1 = new Jaguar (jaguar1);
 		this.encoder = new AnalogInput (encoder);
 		pidController = new PIDController (1, 0, 0, this.encoder, this.jaguar1);
+		pidController.setOutputRange(-1, 1);
+		pidController.setContinuous();
+		pidController.enable();
 		
 		this.offset = offset;
 	}
@@ -47,20 +54,26 @@ public class WheelDrive {
 			y *= -1;
 		}
 		
+		
+//		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5) - ((offset / 360) * 5);
+		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5);
+
+		if (offset < -90)
+		{
+			setpoint = setpoint - offset / 360 * 5 - 4.95 / 2;
+			y = -y;
+			
+		}
+		else if (offset > 90)
+		{
+			setpoint = setpoint - offset / 360 * 5 + 4.95 / 2;
+			y = -y;
+		}
+		else
+			setpoint = setpoint - offset / 360 * 5;
+		
 		jaguar0.set(y);
-		
-		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5) - ((offset / 360) * 5);
-		
-		if (setpoint < 0) {
-			setpoint = 4.95 + setpoint;
-		}
-		if (setpoint > 4.95) {
-			setpoint = setpoint - 4.95;
-		}
 		pidController.setSetpoint(setpoint);
 		
-		pidController.setOutputRange(-1, 1);
-		pidController.setContinuous();
-		pidController.enable();
 	}
 }
