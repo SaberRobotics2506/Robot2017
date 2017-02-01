@@ -3,8 +3,8 @@ package org.usfirst.frc.team2506.robot;
 import edu.wpi.first.wpilibj.*;
 
 public class WheelDrive {
-	Jaguar jaguar0;
-	Jaguar jaguar1;
+	Jaguar speedMotor;
+	Jaguar angleMotor;
 	AnalogInput encoder;
 	PIDController pidController;
 	
@@ -14,11 +14,11 @@ public class WheelDrive {
 	final double ENCODER_180 = ENCODER_MAX / 2;
 	final double ENCODER_90 = ENCODER_MAX / 4;
 	
-	public WheelDrive(int jaguar0, int jaguar1, int encoder, double offset) {
-		this.jaguar0 = new Jaguar (jaguar0);
-		this.jaguar1 = new Jaguar (jaguar1);
+	public WheelDrive(int speedMotor, int angleMotor, int encoder, double offset) {
+		this.speedMotor = new Jaguar (speedMotor);
+		this.angleMotor = new Jaguar (angleMotor);
 		this.encoder = new AnalogInput (encoder);
-		pidController = new PIDController (1, 0, 0, this.encoder, this.jaguar1);
+		pidController = new PIDController (1, 0, 0, this.encoder, this.angleMotor);
 		pidController.setOutputRange(-1, 1);
 		pidController.setContinuous();
 		pidController.enable();
@@ -41,38 +41,38 @@ public class WheelDrive {
 	}
 	
 	public void coast () {
-		jaguar0.set(0);
+		speedMotor.set(0);
 	}
 	
-	public void drive (double x, double y) {
+	public void drive (double angle, double speed) {
 
-		if (x > MAX) {
-			x -= 1;
-			y *= -1;
-		} else if (x < -MAX) {
-			x += 1;
-			y *= -1;
+		if (angle > MAX) {
+			angle -= 1;
+			speed *= -1;
+		} else if (angle < -MAX) {
+			angle += 1;
+			speed *= -1;
 		}
 		
 		
 //		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5) - ((offset / 360) * 5);
-		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5);
+		double setpoint = angle * (4.95 * 0.5) + (4.95 * 0.5);
 
 		if (offset < -90)
 		{
 			setpoint = setpoint - offset / 360 * 5 - 4.95 / 2;
-			y = -y;
+			speed *= -1;
 			
 		}
 		else if (offset > 90)
 		{
 			setpoint = setpoint - offset / 360 * 5 + 4.95 / 2;
-			y = -y;
+			speed *= -1;
 		}
 		else
 			setpoint = setpoint - offset / 360 * 5;
 		
-		jaguar0.set(y);
+		speedMotor.set(speed);
 		pidController.setSetpoint(setpoint);
 		
 	}

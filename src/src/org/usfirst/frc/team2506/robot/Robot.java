@@ -31,16 +31,16 @@ public class Robot extends IterativeRobot {
 
 	}
 
-	public void teleopInit()
-	{
+	public void teleopInit() {
+		swerveDrive.drive(0, 0, 0);
 	}
 	
-	WheelDrive backLeft = new WheelDrive(7, 6, 3, -153);
-	WheelDrive frontLeft = new WheelDrive(5, 4, 2, -30);
-	WheelDrive backRight = new WheelDrive(2, 3, 1, 151);
-	WheelDrive frontRight = new WheelDrive(0, 1, 0, -101);
-	WheelDrive[] wheels = { frontRight, frontLeft, backRight, backLeft };
-	WheelDrive testWheel = wheels[0];
+	WheelDrive2 backLeft = new WheelDrive2(7, 6, 3, -153);
+	WheelDrive2 frontLeft = new WheelDrive2(5, 4, 2, -30);
+	WheelDrive2 backRight = new WheelDrive2(2, 3, 1, 151);
+	WheelDrive2 frontRight = new WheelDrive2(0, 1, 0, -101);
+	WheelDrive2[] wheels = { frontRight, frontLeft, backRight, backLeft };
+	WheelDrive2 testWheel = wheels[0];
 	
 	private SwerveDrive swerveDrive = new SwerveDrive (frontRight, backRight, frontLeft, backLeft);
 	

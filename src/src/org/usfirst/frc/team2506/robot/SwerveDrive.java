@@ -13,12 +13,12 @@ public class SwerveDrive {
 	
 	private int clock = 0;
 	
-	WheelDrive frontRight;
-	WheelDrive backRight;
-	WheelDrive frontLeft;
-	WheelDrive backLeft;
+	WheelDrive2 frontRight;
+	WheelDrive2 backRight;
+	WheelDrive2 frontLeft;
+	WheelDrive2 backLeft;
 	
-	public SwerveDrive (WheelDrive frontRight, WheelDrive backRight, WheelDrive frontLeft, WheelDrive backLeft) {
+	public SwerveDrive (WheelDrive2 frontRight, WheelDrive2 backRight, WheelDrive2 frontLeft, WheelDrive2 backLeft) {
 		this.frontRight = frontRight;
 		this.backRight = backRight;
 		this.frontLeft = frontLeft;
