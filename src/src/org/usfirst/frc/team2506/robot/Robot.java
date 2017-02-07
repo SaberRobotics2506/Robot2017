@@ -1,5 +1,10 @@
 package org.usfirst.frc.team2506.robot;
 
+import org.usfirst.frc.team2506.robot.XboxController.JoystickManager;
+import org.usfirst.frc.team2506.robot.XboxController.XboxButtons;
+import org.usfirst.frc.team2506.robot.XboxController.Events.IButtonPressed;
+import org.usfirst.frc.team2506.robot.XboxHandlers.ButtonStartHandler;
+
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,40 +35,44 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 
 	}
-
+	private JoystickManager joystickManager = new JoystickManager (joystick);
+	private IButtonPressed startButtonPressedHandler = new ButtonStartHandler (this);
 	public void teleopInit() {
 		swerveDrive.drive(0, 0, 0);
+		joystickManager.addButtonPressedListener(XboxButtons.BUTTON_A, startButtonPressedHandler);
+		joystickManager.start();
 	}
 	
-	WheelDrive2 backLeft = new WheelDrive2(7, 6, 3, -153);
-	WheelDrive2 frontLeft = new WheelDrive2(5, 4, 2, -30);
-	WheelDrive2 backRight = new WheelDrive2(2, 3, 1, 151);
-	WheelDrive2 frontRight = new WheelDrive2(0, 1, 0, -101);
-	WheelDrive2[] wheels = { frontRight, frontLeft, backRight, backLeft };
-	WheelDrive2 testWheel = wheels[0];
+	WheelDrive backLeft = new WheelDrive(7, 6, 3, 24);
+	WheelDrive frontLeft = new WheelDrive(5, 4, 2, -25);
+	WheelDrive backRight = new WheelDrive(2, 3, 1, -35);
+	WheelDrive frontRight = new WheelDrive(0, 1, 0, -101);
 	
 	private SwerveDrive swerveDrive = new SwerveDrive (frontRight, backRight, frontLeft, backLeft);
+	private TankDrive tankDrive = new TankDrive (backLeft, backRight, frontLeft, backRight);
+	public boolean isSwerveDrive = true;
 	
 	@Override
 	public void teleopPeriodic() {
-		double zero = joystick.getRawAxis(0);
-		double one = joystick.getRawAxis(1);
-		double four = joystick.getRawAxis(4);
-		if (zero > 0.1 || zero < -0.1 || one > 0.1 || one < -0.1 || four > 0.1 || four < -0.1) {
-			swerveDrive.drive (squareAxis(one) * 0.7, -squareAxis(zero) * 0.7, -squareAxis(four) * 0.5);
-		} else {
+		double yAxis = joystick.getRawAxis(0);
+		double xAxis = joystick.getRawAxis(1);
+		double rotation = joystick.getRawAxis(4);
+		if (yAxis > 0.1 || yAxis < -0.1 || xAxis > 0.1 || xAxis < -0.1 || rotation > 0.1 || rotation < -0.1) {
+			swerveDrive.drive (squareAxis(xAxis) * 0.5, -squareAxis(yAxis) * 0.5, -squareAxis(rotation) * 0.5);
+		} else { /*
 			backLeft.coast ();
 			backRight.coast ();
 			frontLeft.coast ();
-			frontRight.coast ();
+			frontRight.coast (); */
 		}
 	}
 	
-	double squareAxis(double axis)
-	{
+	double squareAxis(double axis) {
 		return axis * axis * Math.signum(axis);
 	}
 	
+	WheelDrive[] wheels = { frontRight, frontLeft, backRight, backLeft };
+	WheelDrive testWheel = wheels[0];
 	boolean b8 = false;
 	@Override
 	public void testPeriodic()

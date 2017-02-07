@@ -1,8 +1,10 @@
 package org.usfirst.frc.team2506.robot;
 
 import edu.wpi.first.wpilibj.*;
+import org.usfirst.frc.team2506.robot.*;
 
 public class WheelDrive {
+	
 	Jaguar speedMotor;
 	Jaguar angleMotor;
 	AnalogInput encoder;
@@ -10,7 +12,7 @@ public class WheelDrive {
 	
 	double offset;
 	
-	final double ENCODER_MAX = 4.95;
+	final double ENCODER_MAX = 4.96;
 	final double ENCODER_180 = ENCODER_MAX / 2;
 	final double ENCODER_90 = ENCODER_MAX / 4;
 	
@@ -18,25 +20,27 @@ public class WheelDrive {
 		this.speedMotor = new Jaguar (speedMotor);
 		this.angleMotor = new Jaguar (angleMotor);
 		this.encoder = new AnalogInput (encoder);
-		pidController = new PIDController (1, 0, 0, this.encoder, this.angleMotor);
+		pidController = new PIDController (1, 0.2, 0, this.encoder, this.angleMotor);
 		pidController.setOutputRange(-1, 1);
+		pidController.setInputRange(0, ENCODER_MAX);
 		pidController.setContinuous();
+		pidController.setSetpoint(ENCODER_180);
 		pidController.enable();
 		
 		this.offset = offset;
 	}
-	public final double MAX = 0.5;
 	
-	public void incrementOffset()
-	{
+	public Jaguar getSpeedMotor () {
+		return speedMotor;
+	}
+	
+	public void incrementOffset() {
 		offset++;
 	}
-	public void decrementOffset()
-	{
+	public void decrementOffset() {
 		offset--;
 	}
-	public double getOffset()
-	{
+	public double getOffset() {
 		return offset;
 	}
 	
@@ -45,35 +49,55 @@ public class WheelDrive {
 	}
 	
 	public void drive (double angle, double speed) {
+		angle *= 180; // convert back to degrees
 
-		if (angle > MAX) {
-			angle -= 1;
-			speed *= -1;
-		} else if (angle < -MAX) {
-			angle += 1;
-			speed *= -1;
+		double currentAngle = encoder.getVoltage() * 360 / ENCODER_MAX - 180 + offset;
+		double currentOpposite = normalize(currentAngle + 180);
+		
+		double currentDiff = angleDiff(angle, currentAngle);
+		double oppositeDiff = angleDiff(angle, currentOpposite);
+		
+		double commandAngle;
+		double commandSpeed;
+		if (currentDiff <= oppositeDiff) {
+			commandAngle = angle;
+			commandSpeed = speed;
+		}
+		else {
+			commandAngle = normalize(angle + 180);
+			commandSpeed = -speed;
 		}
 		
+		double adjustedAngle = normalize(commandAngle - offset);
 		
-//		double setpoint = x * (4.95 * 0.5) + (4.95 * 0.5) - ((offset / 360) * 5);
-		double setpoint = angle * (4.95 * 0.5) + (4.95 * 0.5);
-
-		if (offset < -90)
-		{
-			setpoint = setpoint - offset / 360 * 5 - 4.95 / 2;
-			speed *= -1;
-			
-		}
-		else if (offset > 90)
-		{
-			setpoint = setpoint - offset / 360 * 5 + 4.95 / 2;
-			speed *= -1;
-		}
-		else
-			setpoint = setpoint - offset / 360 * 5;
+		double setpoint = (adjustedAngle / 180) * ENCODER_MAX / 2 + ENCODER_MAX / 2;
 		
-		speedMotor.set(speed);
 		pidController.setSetpoint(setpoint);
+		speedMotor.set(commandSpeed);
+	}
+	
+	double normalize(double angle) {
+		if (angle < -180)
+			angle += 360;
+		else if (angle > 180)
+			angle -= 360;
+		return angle;
+	}
+	
+	double angleDiff(double angle1, double angle2)
+	{
+		double diff;
 		
+		if (angle1 < -90 && angle2 > 90) {
+			diff = (180 + angle1) + (180 - angle2);
+		}
+		else if (angle2 < -90 && angle1 > 90) {
+			diff = (180 + angle2) + (180 - angle1);
+		}
+		else {
+			diff = Math.abs(angle1 - angle2);
+		}
+		
+		return diff;
 	}
 }

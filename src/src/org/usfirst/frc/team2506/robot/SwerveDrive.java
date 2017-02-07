@@ -13,12 +13,12 @@ public class SwerveDrive {
 	
 	private int clock = 0;
 	
-	WheelDrive2 frontRight;
-	WheelDrive2 backRight;
-	WheelDrive2 frontLeft;
-	WheelDrive2 backLeft;
+	WheelDrive frontRight;
+	WheelDrive backRight;
+	WheelDrive frontLeft;
+	WheelDrive backLeft;
 	
-	public SwerveDrive (WheelDrive2 frontRight, WheelDrive2 backRight, WheelDrive2 frontLeft, WheelDrive2 backLeft) {
+	public SwerveDrive (WheelDrive frontRight, WheelDrive backRight, WheelDrive frontLeft, WheelDrive backLeft) {
 		this.frontRight = frontRight;
 		this.backRight = backRight;
 		this.frontLeft = frontLeft;
@@ -46,37 +46,7 @@ public class SwerveDrive {
 		
 		frontRight.drive (wa2, ws1);
 		frontLeft.drive (wa1, ws2);
-		backRight.drive (wa3, ws3);
-		backLeft.drive (wa4, ws4);
-		
-		/* <hack>
-		If we're strafing
-		if (x2 < 0.1 && x2 > -0.1) {
-			frontRight.drive (wa1, ws1);
-			frontLeft.drive (wa2, ws2);
-			backRight.drive (wa3, ws3);
-			backLeft.drive (wa4, ws4);
-		} else {
-			If we're turning left
-			if (x2 <= -0.1) {
-				frontRight.drive (-wa1, -ws1);
-				frontLeft.drive (wa2, ws2);
-				backRight.drive (-wa3, -ws3);
-				backLeft.drive (wa4, ws4);
-			} else {
-			IF we're turning right
-				frontRight.drive (wa1, ws1);
-				frontLeft.drive (-wa2, -ws2);
-				backRight.drive (wa3, ws3);
-				backLeft.drive (-wa4, -ws4);
-			}
-		} </hack>
-		
-		if (clock % 100 == 0) {
-			System.out.println (String.format("ws1 %f ws2 %f ws3 %f ws4 %f", ws1, ws2, ws3, ws4));
-			System.out.println(String.format("wa1 %f wa2 %f wa3 %f wa4 %f", wa1 *180, wa2 * 180, wa3 * 180, wa4 * 180));
-			System.out.println("\n");
-		}
-		*/
+		backRight.drive (wa3, -ws3);
+		backLeft.drive (wa4, -ws4);
 	}
 }
