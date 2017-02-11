@@ -1,12 +1,13 @@
 package org.usfirst.frc.team2506.robot;
 
 import edu.wpi.first.wpilibj.*;
+import com.ctre.CANTalon;
 
 public class TankDrive implements DriveTrain {
-	private Jaguar backLeft;
-	private Jaguar backRight;
-	private Jaguar frontLeft;
-	private Jaguar frontRight;
+	private CANTalon backLeft;
+	private CANTalon backRight;
+	private CANTalon frontLeft;
+	private CANTalon frontRight;
 	
 	public TankDrive (WheelDrive backLeft, WheelDrive backRight, WheelDrive frontLeft, WheelDrive frontRight) {
 		this.backLeft = backLeft.getSpeedMotor();

@@ -2,11 +2,12 @@ package org.usfirst.frc.team2506.robot;
 
 import edu.wpi.first.wpilibj.*;
 import org.usfirst.frc.team2506.robot.*;
+import com.ctre.CANTalon;
 
 public class WheelDrive {
 	
-	Jaguar speedMotor;
-	Jaguar angleMotor;
+	CANTalon speedMotor;
+	CANTalon angleMotor;
 	AnalogInput encoder;
 	PIDController pidController;
 	
@@ -17,10 +18,10 @@ public class WheelDrive {
 	final double ENCODER_90 = ENCODER_MAX / 4;
 	
 	public WheelDrive(int speedMotor, int angleMotor, int encoder, double offset) {
-		this.speedMotor = new Jaguar (speedMotor);
-		this.angleMotor = new Jaguar (angleMotor);
+		this.speedMotor = new CANTalon (speedMotor);
+		this.angleMotor = new CANTalon (angleMotor);
 		this.encoder = new AnalogInput (encoder);
-		pidController = new PIDController (1, 0.2, 0, this.encoder, this.angleMotor);
+		pidController = new PIDController (1, 0.1, 0, this.encoder, this.angleMotor);
 		pidController.setOutputRange(-1, 1);
 		pidController.setInputRange(0, ENCODER_MAX);
 		pidController.setContinuous();
@@ -30,7 +31,7 @@ public class WheelDrive {
 		this.offset = offset;
 	}
 	
-	public Jaguar getSpeedMotor () {
+	public CANTalon getSpeedMotor () {
 		return speedMotor;
 	}
 	
@@ -51,7 +52,7 @@ public class WheelDrive {
 	public void drive (double angle, double speed) {
 		angle *= 180; // convert back to degrees
 
-		double currentAngle = encoder.getVoltage() * 360 / ENCODER_MAX - 180 + offset;
+		double currentAngle = normalize(encoder.getVoltage() * 360 / ENCODER_MAX - 180 + offset);
 		double currentOpposite = normalize(currentAngle + 180);
 		
 		double currentDiff = angleDiff(angle, currentAngle);
@@ -70,7 +71,7 @@ public class WheelDrive {
 		
 		double adjustedAngle = normalize(commandAngle - offset);
 		
-		double setpoint = (adjustedAngle / 180) * ENCODER_MAX / 2 + ENCODER_MAX / 2;
+		double setpoint = (adjustedAngle / 180) * ENCODER_180 + ENCODER_180;
 		
 		pidController.setSetpoint(setpoint);
 		speedMotor.set(commandSpeed);
