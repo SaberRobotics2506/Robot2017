@@ -38,7 +38,7 @@ public class Robot extends IterativeRobot {
 	}
 	private JoystickManager joystickManager = new JoystickManager (joystick);
 	private ADXRS450_Gyro gyro = new ADXRS450_Gyro ();
-	private Shooter shooter = new Shooter (9);
+//	private Shooter shooter = new Shooter (2);
 //	private Winch winch = new Winch (2);
 	private IButtonPressed startButtonPressedHandler = new ButtonStartHandler (this);
 	
@@ -60,24 +60,29 @@ public class Robot extends IterativeRobot {
 	
 	
 	double motorCurrent = 0;
-	double max_step_output = 0.1;
+	double xOutput = 0;
+	double yOutput = 0;
+	double max_step_output = 0.01;
 	double angle = gyro.getAngle();
-
+	
 	
 	@Override
 	public void teleopPeriodic() {
 		double yAxis = joystick.getRawAxis(0);
 		double xAxis = joystick.getRawAxis(1);
 		double rotation = joystick.getRawAxis(4);
-//		double winchSpeed = joystick.getRawAxis(3);
+		double winchSpeed = joystick.getRawAxis(3);
 		
 		
 		double angle = gyro.getAngle() % 360;
 		
+//		rotation = rate_limit(motorCurrent, rotation, 0.1);
 		if (rotation > motorCurrent + max_step_output) {
 			motorCurrent += max_step_output;
 		} else if (rotation < motorCurrent - max_step_output) {
 			motorCurrent -= max_step_output;
+		} else if (rotation < 0.1 && rotation > -0.1) {
+			motorCurrent = 0;
 		} else {
 			motorCurrent = rotation;
 		}
@@ -86,18 +91,20 @@ public class Robot extends IterativeRobot {
 		yAxis = (xAxis * Math.sin(angle) + (yAxis * Math.cos(angle)));  //finding the new y-coordinates w/ the rotation
 		xAxis = (xAxis * Math.cos(angle) + (yAxis * Math.sin(angle)));  //finding the new x-coordinates w/ the rotation
 		
-		if (yAxis > 0.1 || yAxis < -0.1 || xAxis > 0.1 || xAxis < -0.1 || rotation > 0.1 || rotation < -0.1) {
-			swerveDrive.drive (squareAxis(xAxis) * 0.5, -squareAxis(yAxis) * 0.5, -squareAxis(rotation) * 0.5);
-		} else { /*
-			backLeft.coast ();
-			backRight.coast ();
+		if (yAxis > 0.1 || yAxis < -0.1 || xAxis > 0.1 || xAxis < -0.1 || motorCurrent > 0.1 || motorCurrent < -0.1) {
+			System.out.println(rotation);
+			swerveDrive.drive (squareAxis(xAxis) * 0.5, -squareAxis(yAxis) * 0.5, -squareAxis(motorCurrent) * 0.5);
+			
+		} else { /*]]]]]]]]]]]]]]]]]]]]	backLeft.coast ();
+			backRight.coas  ct ();
 			frontLeft.coast ();
 			frontRight.coast (); */
 		}
 		
-		//shooter.shooterTest 0.5);
+//		shooter.shooterTest(winchSpeed);
+//		winch.turnOn(winchSpeed);
 		
-//		winch.turnOn(winchSpeed * 0.7);
+//		System.out.println(motorCurrent);
 	}
 	
 	double squareAxis(double axis) {
