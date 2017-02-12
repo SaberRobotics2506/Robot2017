@@ -9,105 +9,121 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the manifest file in the resource
- * directory.
- */
 public class Robot extends IterativeRobot {
-	Joystick joystick = new Joystick (0);
-	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
-	 */
+	private Joystick playerOne = new Joystick(PortConstants.PORT_JOYSTICK_ONE);
+	private JoystickManager joystickManager = new JoystickManager(playerOne);
+	private IButtonPressed startButtonPressedHandler = new ButtonStartHandler(this);
+
+	private WheelDrive backLeft = new WheelDrive(
+			WheelConstants.MOTOR_BACK_LEFT_SPEED,
+			WheelConstants.MOTOR_BACK_LEFT_ANGLE,
+			WheelConstants.MOTOR_BACK_LEFT_ENCODER,
+			WheelConstants.MOTOR_BACK_LEFT_OFFSET
+			);
+	private WheelDrive frontLeft = new WheelDrive(
+			WheelConstants.MOTOR_FRONT_LEFT_SPEED,
+			WheelConstants.MOTOR_FRONT_LEFT_ANGLE,
+			WheelConstants.MOTOR_FRONT_LEFT_ENCODER,
+			WheelConstants.MOTOR_FRONT_LEFT_OFFSET
+			);
+	private WheelDrive backRight = new WheelDrive(
+			WheelConstants.MOTOR_BACK_RIGHT_SPEED,
+			WheelConstants.MOTOR_BACK_RIGHT_ANGLE,
+			WheelConstants.MOTOR_BACK_RIGHT_ENCODER,
+			WheelConstants.MOTOR_BACK_RIGHT_OFFSET
+			);
+	private WheelDrive frontRight = new WheelDrive(
+			WheelConstants.MOTOR_FRONT_RIGHT_SPEED,
+			WheelConstants.MOTOR_FRONT_RIGHT_ANGLE,
+			WheelConstants.MOTOR_FRONT_RIGHT_ENCODER,
+			WheelConstants.MOTOR_FRONT_RIGHT_OFFSET
+			);
+
+	private SwerveDrive swerveDrive = new SwerveDrive(frontRight, backRight, frontLeft, backLeft);
+	private Winch winch = new Winch(PortConstants.PORT_WINCH);
+	private Intake intake = new Intake(PortConstants.PORT_INTAKE);
+	private Shooter shooter = new Shooter(PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_ENCODER);
+	
+	private ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+	private GyroUtils gyroUtils = new GyroUtils(gyro, swerveDrive);
+
 	@Override
 	public void robotInit() {
-		
+		gyro.calibrate();
+		gyro.setPIDSourceType(PIDSourceType.kDisplacement);
 	}
 
 	@Override
 	public void autonomousInit() {
+		gyro.reset();
 	}
 
 	@Override
 	public void autonomousPeriodic() {
-
+		gyroUtils.drive(0, 0.5);
 	}
-	private JoystickManager joystickManager = new JoystickManager (joystick);
-	private IButtonPressed startButtonPressedHandler = new ButtonStartHandler (this);
+
 	public void teleopInit() {
-		swerveDrive.drive(0, 0, 0);
+		swerveDrive.drive(gyro, 0, 0, 0);
 		joystickManager.addButtonPressedListener(XboxButtons.BUTTON_A, startButtonPressedHandler);
 		joystickManager.start();
 	}
-	
-	WheelDrive backLeft = new WheelDrive(7, 6, 3, 24);
-	WheelDrive frontLeft = new WheelDrive(5, 4, 2, -25);
-	WheelDrive backRight = new WheelDrive(2, 3, 1, -35);
-	WheelDrive frontRight = new WheelDrive(0, 1, 0, -101);
-	
-	private SwerveDrive swerveDrive = new SwerveDrive (frontRight, backRight, frontLeft, backLeft);
-	private TankDrive tankDrive = new TankDrive (backLeft, backRight, frontLeft, backRight);
-	public boolean isSwerveDrive = true;
-	
+
 	@Override
 	public void teleopPeriodic() {
-		double yAxis = joystick.getRawAxis(0);
-		double xAxis = joystick.getRawAxis(1);
-		double rotation = joystick.getRawAxis(4);
+		winch.turnOn(playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_TRIGGER));
+		intake.roll(playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_TRIGGER));
+
+		double yAxis = playerOne.getRawAxis(XboxButtons.AXIS_LEFT_Y);
+		double xAxis = playerOne.getRawAxis(XboxButtons.AXIS_LEFT_X);
+		double rotation = playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_X);
+		
 		if (yAxis > 0.1 || yAxis < -0.1 || xAxis > 0.1 || xAxis < -0.1 || rotation > 0.1 || rotation < -0.1) {
-			swerveDrive.drive (squareAxis(xAxis) * 0.5, -squareAxis(yAxis) * 0.5, -squareAxis(rotation) * 0.5);
-		} else { /*
-			backLeft.coast ();
-			backRight.coast ();
-			frontLeft.coast ();
-			frontRight.coast (); */
+			swerveDrive.drive(gyro, yAxis, xAxis, rotation);
+		} else {
+			swerveDrive.drive(gyro, 0, 0, 0);
+		}
+		
+		if (playerOne.getRawButton(XboxButtons.BUTTON_A)) {
+			if (shooter.readyToFire())
+				shooter.startShooting();
+		} else {
+			shooter.stopShooting();
 		}
 	}
-	
-	double squareAxis(double axis) {
-		return axis * axis * Math.signum(axis);
-	}
-	
+
 	WheelDrive[] wheels = { frontRight, frontLeft, backRight, backLeft };
 	WheelDrive testWheel = wheels[0];
 	boolean b8 = false;
+
 	@Override
-	public void testPeriodic()
-	{
-		swerveDrive.drive(0, 0, 0);
-		
-		for (int b = 1; b <= 4; b++)
-		{
-			if (joystick.getRawButton(b))
-			{
-				testWheel = wheels[b-1];
+	public void testPeriodic() {
+		swerveDrive.drive(gyro, 0, 0, 0);
+
+		for (int b = 1; b <= 4; b++) {
+			if (playerOne.getRawButton(b)) {
+				testWheel = wheels[b - 1];
 				System.out.println("calibrating wheel " + b);
 			}
 		}
-		
-		double stick = joystick.getRawAxis(1);
-		
-		if (stick > .2) testWheel.incrementOffset();
-		else if (stick < -0.2) testWheel.decrementOffset();
-		
-		if (joystick.getRawButton(8))
-		{
-			if (!b8)
-			{
+
+		double stick = playerOne.getRawAxis(1);
+
+		if (stick > .2)
+			testWheel.incrementOffset();
+		else if (stick < -0.2)
+			testWheel.decrementOffset();
+
+		if (playerOne.getRawButton(8)) {
+			if (!b8) {
 				System.out.println("front right " + frontRight.getOffset());
 				System.out.println("front left " + frontLeft.getOffset());
 				System.out.println("back right " + backRight.getOffset());
 				System.out.println("back left " + backLeft.getOffset());
 			}
 			b8 = true;
-		}
-		else
-		{
+		} else {
 			b8 = false;
 		}
 	}
 }
-

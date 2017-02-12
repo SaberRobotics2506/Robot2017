@@ -70,14 +70,12 @@ public class JoystickManager {
 	}
 	
 	private void fireButtonHeldListeners (int button) {
-		for (Integer key : buttonHeldListeners.keySet()) {
-			buttonHeldListeners.get(key).buttonHeld();
-		}
+		if (buttonHeldListeners.containsKey (button))
+			buttonHeldListeners.get (button).buttonHeld ();
 	}
 	
 	private void fireButtonPressedListeners (int button) {
-		for (Integer key : buttonPressedListeners.keySet()) {
-			buttonPressedListeners.get(key).buttonPressed();
-		}
+		if (buttonPressedListeners.containsKey (button))
+			buttonPressedListeners.get (button).buttonPressed ();
 	}
 }

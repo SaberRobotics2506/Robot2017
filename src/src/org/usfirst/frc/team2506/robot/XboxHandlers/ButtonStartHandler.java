@@ -12,6 +12,6 @@ public class ButtonStartHandler implements IButtonPressed {
 	}
 	@Override
 	public void buttonPressed() {
-		robot.isSwerveDrive = robot.isSwerveDrive ? false : true;
+		//TODO: Define behavior for start button
 	}
 }
