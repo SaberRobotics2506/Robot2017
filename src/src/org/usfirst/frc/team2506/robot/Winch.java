@@ -7,10 +7,10 @@ import edu.wpi.first.wpilibj.TalonSRX;
 
 public class Winch {
 
-	private CANTalon motor;
+	private Jaguar motor;
 	
 	public Winch(int motorID) {
-		motor = new CANTalon (0);
+		motor = new Jaguar (motorID);
 	}
 	
 	public void turnOn(double speed) {

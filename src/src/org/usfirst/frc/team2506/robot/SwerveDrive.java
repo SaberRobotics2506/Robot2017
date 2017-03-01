@@ -6,12 +6,13 @@ import java.math.*;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 public class SwerveDrive {
+	public static final double DEFAULT_SPEED_MULTIPLIER = 0.6;
 	public SwerveDrive () {
 		
 	}
 	
-	public final double L = 18;
-	public final double W = 14;
+	public final double L = 24;
+	public final double W = 26;
 	
 	private int clock = 0;
 	
@@ -27,10 +28,13 @@ public class SwerveDrive {
 		this.backLeft = backLeft;
 	}
 	public void drive (ADXRS450_Gyro gyro, double y1, double x1, double x2) {
-		double[] rotatedInputs = rotateInputs(x1, y1, gyro.getAngle() % 360);
+		drive (gyro, y1, x1, x2, DEFAULT_SPEED_MULTIPLIER);
+	}
+	public void drive (ADXRS450_Gyro gyro, double y1, double x1, double x2, double multiplier) {
+		double[] rotatedInputs = rotateInputs(x1, y1, (gyro.getAngle() % 360) - 270 );
 		x1 = rotatedInputs[0];
 		y1 = rotatedInputs[1];
-		_drive(squareAxis(x1) * 0.5, -squareAxis(y1) * 0.5, -squareAxis(x2) * 0.5);
+		_drive(squareAxis(x1) * multiplier, -squareAxis(y1) * multiplier, -squareAxis(x2) * multiplier);
 	}
 	
 	private void _drive (double y1, double x1, double x2) {
@@ -54,7 +58,7 @@ public class SwerveDrive {
 		
 		frontRight.drive (wa2, ws1);
 		frontLeft.drive (wa1, ws2);
-		backRight.drive (wa3, -ws3);
+		backRight.drive (wa3, ws3);
 		backLeft.drive (wa4, -ws4);
 	}
 	

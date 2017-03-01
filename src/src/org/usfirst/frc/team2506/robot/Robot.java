@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
 	private Joystick playerOne = new Joystick(PortConstants.PORT_JOYSTICK_ONE);
+	private Joystick playerTwo = new Joystick(PortConstants.PORT_JOYSTICK_TWO);
 	private JoystickManager joystickManager = new JoystickManager(playerOne);
 	private IButtonPressed startButtonPressedHandler = new ButtonStartHandler(this);
 
@@ -40,27 +41,32 @@ public class Robot extends IterativeRobot {
 			);
 
 	private SwerveDrive swerveDrive = new SwerveDrive(frontRight, backRight, frontLeft, backLeft);
-	private Winch winch = new Winch(PortConstants.PORT_WINCH);
+	//private Winch winch = new Winch(PortConstants.PORT_WINCH);
 	private Intake intake = new Intake(PortConstants.PORT_INTAKE);
-	private Shooter shooter = new Shooter(PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_ENCODER);
-	
+	//private Shooter shooter = new Shooter(PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_HOPPER);
+	private BadShooter shooter = new BadShooter(PortConstants.PORT_SHOOTER_SHOOTER, PortConstants.PORT_SHOOTER_HOPPER);
 	private ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 	private GyroUtils gyroUtils = new GyroUtils(gyro, swerveDrive);
-
+	private Ultrasonic ultrasonic = new Ultrasonic(1, 0);
+	
 	@Override
 	public void robotInit() {
 		gyro.calibrate();
 		gyro.setPIDSourceType(PIDSourceType.kDisplacement);
+		
+    	ultrasonic.setEnabled(true);
+    	ultrasonic.setAutomaticMode(true);
 	}
 
 	@Override
 	public void autonomousInit() {
 		gyro.reset();
+		//AutonomousGear.init(gyro, swerveDrive, ultrasonic);
 	}
 
 	@Override
 	public void autonomousPeriodic() {
-		gyroUtils.drive(0, 0.5);
+		//AutonomousGear.run();
 	}
 
 	public void teleopInit() {
@@ -71,22 +77,34 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		winch.turnOn(playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_TRIGGER));
-		intake.roll(playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_TRIGGER));
+		System.out.println(ultrasonic.getRangeInches());
+		//winch.turnOn(playerTwo.getRawAxis(XboxButtons.AXIS_LEFT_TRIGGER));
+		intake.roll(playerTwo.getRawAxis(XboxButtons.AXIS_RIGHT_TRIGGER));
 
 		double yAxis = playerOne.getRawAxis(XboxButtons.AXIS_LEFT_Y);
 		double xAxis = playerOne.getRawAxis(XboxButtons.AXIS_LEFT_X);
 		double rotation = playerOne.getRawAxis(XboxButtons.AXIS_RIGHT_X);
 		
 		if (yAxis > 0.1 || yAxis < -0.1 || xAxis > 0.1 || xAxis < -0.1 || rotation > 0.1 || rotation < -0.1) {
-			swerveDrive.drive(gyro, yAxis, xAxis, rotation);
+			// Turbo, bitches! xD
+			if (playerOne.getRawButton(XboxButtons.BUTTON_LEFT_STICK))
+				swerveDrive.drive(gyro, yAxis, -xAxis, rotation, 0.8);
+			else if (playerOne.getRawButton(XboxButtons.BUTTON_RIGHT_STICK))
+				swerveDrive.drive(gyro, yAxis, -xAxis, rotation, 0.4);
+			else
+				swerveDrive.drive(gyro, yAxis, -xAxis, rotation);
 		} else {
 			swerveDrive.drive(gyro, 0, 0, 0);
 		}
 		
-		if (playerOne.getRawButton(XboxButtons.BUTTON_A)) {
-			if (shooter.readyToFire())
-				shooter.startShooting();
+		if (playerTwo.getRawButton(XboxButtons.BUTTON_A)) {
+			shooter.startHopper();
+		} else {
+			shooter.stopHopper();
+		}
+		
+		if (playerTwo.getRawAxis(XboxButtons.AXIS_LEFT_TRIGGER) > 0.1) {
+			shooter.startShooting();
 		} else {
 			shooter.stopShooting();
 		}

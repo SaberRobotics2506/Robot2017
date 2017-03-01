@@ -5,10 +5,10 @@ import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.*;
 
 public class Intake {
-	private CANTalon motor;
+	private Victor motor;
 	
 	public Intake(int intake) {
-		this.motor = new CANTalon(intake);
+		this.motor = new Victor(intake);
 	}
 	
 	public void roll (double speed) {
