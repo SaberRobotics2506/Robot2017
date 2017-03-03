@@ -40,22 +40,27 @@ public class SwerveDrive {
 	private void _drive (double y1, double x1, double x2) {
 		clock++;
 		y1 *= -1;
+		
 		double R = Math.sqrt(L * L + W * W);
+		
 		double a = x1 - x2 * (L / R);
 		double b = x1 + x2 * (L / R);
 		double c = y1 - x2 * (W / R);
 		double d = y1 + x2 * (W / R);
 
+		// Calculate all the wheel speeds.
 		double ws1 = Math.sqrt ((b * b) + (c * c));
 		double ws2 = Math.sqrt ((b * b) + (d * d));
 		double ws3 = Math.sqrt ((a * a) + (d * d));
 		double ws4 = Math.sqrt ((a * a) + (c * c));
 		
+		// Calculate all the wheel angles.
 		double wa1 = Math.atan2 (b, c) / Math.PI;
 		double wa2 = Math.atan2 (b, d) / Math.PI;
 		double wa3 = Math.atan2 (a, d) / Math.PI;
 		double wa4 = Math.atan2 (a, c) / Math.PI;
 		
+		// Drive the motors.
 		frontRight.drive (wa2, ws1);
 		frontLeft.drive (wa1, ws2);
 		backRight.drive (wa3, ws3);
