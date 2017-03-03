@@ -7,6 +7,7 @@ import com.ctre.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.*;
 
 public class Shooter {
+	//Used to set the speed of the bad shooter
 	final double ENCODER_FULL_SPEED = 200;
 	final double ENCODER_HALF_SPEED = ENCODER_FULL_SPEED / 2;
 	
@@ -34,6 +35,7 @@ public class Shooter {
 //		setShooterResting();
 	}
 	
+	//For debugging shooter encoder	
 	public void printRPM() {
 		System.out.println("speed " + shooter.getSpeed());
 		System.out.println("Error " + shooter.getClosedLoopError());
@@ -41,6 +43,7 @@ public class Shooter {
 		//System.out.println(shooter.getOutputVoltage() / shooter.getBusVoltage());
 	}
 	
+	//Returns if the shooter is ready to fire
 	public boolean readyToFire() {
 		setShooterFiring();
 		return shooter.getSpeed() >= ENCODER_FULL_SPEED;
@@ -59,9 +62,12 @@ public class Shooter {
 		setShooterResting();
 	}
 	
+	//stops shooter from shooting and puts shooter system to rest
 	private void setShooterResting() {
 		shooter.set(0);
 	}
+	
+	//starts shooting systems at speed of 2000
 	private void setShooterFiring() {
 //		this.shooter.changeControlMode(TalonControlMode.Speed);
 		shooter.set(2000);
