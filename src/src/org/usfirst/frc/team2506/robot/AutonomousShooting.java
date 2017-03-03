@@ -53,22 +53,33 @@ public class AutonomousShooting {
 				}
 				break;
 			case Wait:
+				// Increases the clock every tick and then switches to the next state machine step.
 				if (clock++ > 150) {
 					autonomousState = AutonomousStates.MovingBackward;
 				}
 				break;
 			case MovingBackward:
 				if (ultrasonic.getRangeInches() / 12 < GEAR_HALFWAY_FEET) {
+					/* Sets the robots speed to move the robot backwards, to reverse the robot back to a set distence away 
+					from the gear area.
+					*/
 					driveTrain.drive(gyro, -ROBOT_SPEED, 0, 0);
 				} else {
+					/* Sets the robots drive motors to no speed to stop the robot from moving and then moves on 
+					to the next section.
+					*/
 					driveTrain.drive(gyro, 0, 0, 0);
 					autonomousState = AutonomousStates.Turning;
 				}
 				break;
 			case Turning:
 				if (((gyro.getAngle() % 360) - 90) < TARGET_ANGLE) {
+					//Sets the speed of the angle motors to half speed to start turning the robot twords the goal.
 					driveTrain.drive(gyro, 0, 0, ROBOT_SPEED);
 				} else {
+					/* Sets the robots drive motors to no speed to stop the robot from turning and then moves on 
+					to the next section.
+					*/
 					driveTrain.drive(gyro, 0, 0, 0);
 					autonomousState = AutonomousStates.Shooting;
 				}
