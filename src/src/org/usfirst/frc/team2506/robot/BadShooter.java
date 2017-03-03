@@ -16,6 +16,7 @@ public class BadShooter {
 		this.shooter = new CANTalon(shooter);
 		this.hopper = new Victor(hopper);
 		
+		// stop shooting.
 		stopShooting();
 	}
 	
