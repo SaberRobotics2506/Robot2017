@@ -11,6 +11,7 @@ public class Intake {
 		this.motor = new Victor(intake);
 	}
 	
+	// Activates the motor to intake
 	public void roll (double speed) {
 		motor.set(speed);
 	}
