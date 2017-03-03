@@ -22,7 +22,9 @@ public class AutonomousShooting {
 		Shooting,
 		End
 	}
+	// Sets the robots shooting state machine into the first section to start the cycle that it needs to go through.
 	private static AutonomousStates autonomousState = AutonomousStates.MovingForward;
+	// Sets these variables to values determined in previous sub-systems code.
 	private static ADXRS450_Gyro gyro;
 	private static SwerveDrive driveTrain;
 	private static Ultrasonic ultrasonic;
@@ -40,8 +42,10 @@ public class AutonomousShooting {
 		switch (autonomousState) {
 			case MovingForward:
 				if (ultrasonic.getRangeInches() > GEAR_RANGE_INCHES) {
+					// Sets the robots drive motors moving forward at half speed
 					driveTrain.drive(gyro, ROBOT_SPEED, 0, 0);
 				} else {
+					// Sets the robots drive motors to no speed to stop the robot from moving and then moves on to the next section..
 					driveTrain.drive(gyro, 0, 0, 0);
 					autonomousState = AutonomousStates.Wait;
 				}
