@@ -60,8 +60,8 @@ public class AutonomousShooting {
 				break;
 			case MovingBackward:
 				if (ultrasonic.getRangeInches() / 12 < GEAR_HALFWAY_FEET) {
-					/* Sets the robots speed to move the robot backwards, to reverse the robot back to a set distence away 
-					from the gear area.
+					/* Sets the robots speed to move the robot backwards, to reverse the robot back to a set
+					distence away from the gear area.
 					*/
 					driveTrain.drive(gyro, -ROBOT_SPEED, 0, 0);
 				} else {
