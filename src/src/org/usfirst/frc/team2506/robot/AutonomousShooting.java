@@ -5,13 +5,17 @@ import edu.wpi.first.wpilibj.*;
 public class AutonomousShooting {
 	// Tells the robot how far it needs to move back after scoreing the gear to be able to start turning twords the goal.
 	public static final double GEAR_HALFWAY_FEET = 3.5;
-	// Sets the amount of time in ticks that the robot needs to wait after it gets to the gear area so that the pilot can pull up the gear. 
+	/* Sets the amount of time in ticks that the robot needs to wait after it gets to the gear area so that the pilot 
+	can pull up the gear. 
+	*/
 	public static final double WAIT_TICKS = 150;
 	// Tells the robot how far away from the gear area it needs to be in order to stop moving twords it.
 	public static final double GEAR_RANGE_INCHES = 2.5;
 	// Sets the angle that the robots needs to turn to, this gives it a set point to shoot from every time.
 	public static final double TARGET_ANGLE = 107.5;
-	//  Sets the variable so that every time it is called the robot will move at half speed to prevent it from moving too fast or slow.
+	/*  Sets the variable so that every time it is called the robot will move at half speed to prevent it from moving too 
+	fast or slow.
+	*/
 	public static final double ROBOT_SPEED = 0.5;
 	
 	private enum AutonomousStates {
@@ -36,7 +40,7 @@ public class AutonomousShooting {
 		AutonomousShooting.ultrasonic = ultrasonic;
 		AutonomousShooting.shooter = shooter;
 	}
-	
+	// Tracks the number of teleop loops, this can tell us how many seconds have passed.
 	private static int clock = 0;
 	public static void run() {
 		switch (autonomousState) {
