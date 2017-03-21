@@ -56,7 +56,7 @@ public class WheelDrive {
 	public void drive (double angle, double speed) {
 		angle *= 180; // convert back to degrees
 
-		double currentAngle = encoder.getVoltage() * 360 / ENCODER_MAX - 180 + offset;
+		double currentAngle = normalize(encoder.getVoltage() * 360 / ENCODER_MAX - 180 + offset);
 		double currentOpposite = normalize(currentAngle + 180);
 		
 		double currentDiff = angleDiff(angle, currentAngle);

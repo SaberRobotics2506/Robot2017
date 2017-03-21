@@ -14,8 +14,6 @@ public class SwerveDrive {
 	public final double L = 24;
 	public final double W = 26;
 	
-	private int clock = 0;
-	
 	WheelDrive frontRight;
 	WheelDrive backRight;
 	WheelDrive frontLeft;
@@ -38,7 +36,6 @@ public class SwerveDrive {
 	}
 	
 	private void _drive (double y1, double x1, double x2) {
-		clock++;
 		y1 *= -1;
 		
 		double R = Math.sqrt(L * L + W * W);
